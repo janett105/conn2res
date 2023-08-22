@@ -19,7 +19,7 @@ from conn2res import readout, plotting
 
 import matplotlib.pyplot as plt
 import seaborn as sns
-from sklearn.preprocessing import StandardScaler    # z-score normalization
+import math
 
 
 warnings.simplefilter(action='ignore', category=FutureWarning)
@@ -89,21 +89,26 @@ for task_name in TASKS:
     # radius
     conn.scale_and_normalize()
 
-    # fig,ax1=plt.subplots()
-    # im=ax1.imshow(conn.w, cmap='turbo', interpolation='none')
-    # cbar=ax1.figure.colorbar(im, ax=ax1)
-    # sns.jointplot(data=conn.w, kind='scatter')
+    print(f"ROI수 : {conn.n_nodes}")
 
-    # scaler=StandardScaler()
-    # scaler.fit(conn.w)
-    # a=scaler.transform(conn.w)
+    n=0
+    for i in range(len(conn.w)):
+        for j in range(len(conn.w[i])):
+            if conn.w[i][j]==0:
+                n+=1
+    print(f"w에서 0 값 개수 : {n}")
+    
+    # log : -inf값이 99만개가 생성됨.
+    w_log=np.log(conn.w)
+    w_log=np.nan_to_num(w_log, neginf=0)
+    print(np.min(w_log), np.max(w_log))
 
-    # fig,ax2=plt.subplots()
-    # im=ax2.imshow(a, cmap='turbo', interpolation='none')
-    # cbar=ax2.figure.colorbar(im, ax=ax2)
-    # sns.jointplot(a, kind='scatter')
+    fig,ax1=plt.subplots()
+    im=ax1.imshow(w_log, cmap='turbo', interpolation= 'nearest')
+    cbar=ax1.figure.colorbar(im, ax=ax1)
+    #sns.jointplot(data=w_log, kind='scatter')
 
-    # plt.show()
+    plt.show()
     # #####################################################################
     # Next, we will simulate the dynamics of the reservoir. We will evaluate
     # the effect of local network dynamics by using different activation
@@ -141,7 +146,7 @@ for task_name in TASKS:
             # will use functional intrinsic networks (Yeo ,et al., 2011).
             # input nodes: a random set of brain regions in the visual system
             input_nodes = conn.get_nodes(
-                'ctx', nodes_from=conn.get_nodes('VIS'),
+                'random', nodes_from=conn.get_nodes('VIS'),
                 n_nodes=task.n_features
             )
 
