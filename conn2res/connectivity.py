@@ -39,10 +39,8 @@ class Conn:
             else:
                 self.w = load_file('connectivity.npy')
 
-            # select one subject(individual connectivity일 때)
-            #self.w = self.w[:, :, subj_id]
-            # consensus connectivity일 때 
-            self.w = self.w[:, :]
+            # select one subject
+            self.w = self.w[:, :, subj_id]
 
         # set zero diagonal
         np.fill_diagonal(self.w, 0)
@@ -93,7 +91,6 @@ class Conn:
 
         # scale connectivity matrix between [0, 1]
         self.w = (self.w - self.w.min()) / (self.w.max() - self.w.min())
-
 
     def normalize(self):
         """
@@ -251,23 +248,17 @@ class Conn:
             else:
                 rsn_mapping = load_file('rsn_mapping.npy')
             np.set_printoptions(threshold=np.inf, linewidth=np.inf)
-
-            print(len(self.idx_node))
+            # count={}
+            # for i in range(1015):
+            #     name=rsn_mapping[i]
+            #     if name in count:
+            #         count[name].append(i)
+            #     else:
+            #         count[name] = [i]
+            # print(count)
             rsn_mapping = rsn_mapping[self.idx_node]
-    
             # np.set_printoptions(threshold=np.inf, linewidth=np.inf)
             # print(rsn_mapping)
-
-            count={}
-            for i in range(len(rsn_mapping)):
-                name=rsn_mapping[i]
-                if name in count:
-                    # count[name].append(i)
-                    count[name]+=1
-                else:
-                    # count[name] = [i]
-                    count[name]=1
-            print(f"rsn에 해당하는 w의 network : {count}")
 
             # get modules
             module_ids, modules = get_modules(rsn_mapping)
@@ -309,7 +300,7 @@ class Conn:
 
         if isinstance(idx_node, np.ndarray) and idx_node.dtype == np.bool:
             # update node attributes
-            self.n_nodes = sum(idx_node)    # idx_node 중 True 개수 -> 1010개
+            self.n_nodes = sum(idx_node)
             self.idx_node[self.idx_node] = idx_node
 
             # update edge attributes
