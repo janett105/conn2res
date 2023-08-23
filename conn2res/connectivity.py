@@ -247,18 +247,7 @@ class Conn:
                 rsn_mapping = np.load(filename)
             else:
                 rsn_mapping = load_file('rsn_mapping.npy')
-            np.set_printoptions(threshold=np.inf, linewidth=np.inf)
-            # count={}
-            # for i in range(1015):
-            #     name=rsn_mapping[i]
-            #     if name in count:
-            #         count[name].append(i)
-            #     else:
-            #         count[name] = [i]
-            # print(count)
             rsn_mapping = rsn_mapping[self.idx_node]
-            # np.set_printoptions(threshold=np.inf, linewidth=np.inf)
-            # print(rsn_mapping)
 
             # get modules
             module_ids, modules = get_modules(rsn_mapping)

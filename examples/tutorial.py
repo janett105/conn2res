@@ -17,11 +17,6 @@ from conn2res.reservoir import EchoStateNetwork
 from conn2res.readout import Readout
 from conn2res import readout, plotting
 
-import matplotlib.pyplot as plt
-import seaborn as sns
-from sklearn.preprocessing import StandardScaler    # z-score normalization
-
-
 warnings.simplefilter(action='ignore', category=FutureWarning)
 warnings.simplefilter(action='ignore', category=RuntimeWarning)
 warnings.simplefilter(action='ignore', category=UserWarning)
@@ -89,27 +84,11 @@ for task_name in TASKS:
     # radius
     conn.scale_and_normalize()
 
-    # fig,ax1=plt.subplots()
-    # im=ax1.imshow(conn.w, cmap='turbo', interpolation='none')
-    # cbar=ax1.figure.colorbar(im, ax=ax1)
-    # sns.jointplot(data=conn.w, kind='scatter')
-
-    # scaler=StandardScaler()
-    # scaler.fit(conn.w)
-    # a=scaler.transform(conn.w)
-
-    # fig,ax2=plt.subplots()
-    # im=ax2.imshow(a, cmap='turbo', interpolation='none')
-    # cbar=ax2.figure.colorbar(im, ax=ax2)
-    # sns.jointplot(a, kind='scatter')
-
-    # plt.show()
     # #####################################################################
     # Next, we will simulate the dynamics of the reservoir. We will evaluate
     # the effect of local network dynamics by using different activation
     # functions. We will also evaluate network performance across dynamical
     # regimes by parametrically tuning alpha, which corresponds to the
-
     # spectral radius of the connectivity matrix (alpha parameter).
     # #####################################################################
     df_subj = []
@@ -141,7 +120,7 @@ for task_name in TASKS:
             # will use functional intrinsic networks (Yeo ,et al., 2011).
             # input nodes: a random set of brain regions in the visual system
             input_nodes = conn.get_nodes(
-                'ctx', nodes_from=conn.get_nodes('VIS'),
+                'random', nodes_from=conn.get_nodes('VIS'),
                 n_nodes=task.n_features
             )
 

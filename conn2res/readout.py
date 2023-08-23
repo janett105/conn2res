@@ -258,12 +258,11 @@ class Readout:
 
 
         # train and test model
-        # score(dict) : readout model evalutation performance기준 : performance 값
         if readout_nodes is None:
             self.train(
                 x_train, y_train, sample_weight_train
             )
-            
+
             score = self.test(
                 x_test, y_test, sample_weight_test, metric=metric, **kwargs
             )
@@ -593,9 +592,8 @@ def _sample_weight(y, split_set):
         _description_
     """
 
-    # get baseline value and type. If y is multi-target take only last baseline value.
-    # baseline : y에서 가장 많이 나오는 값
-    # baseline_type : baseline이 결과값에 속하는지, 결과값의 종류가 2개 이상인지에 따라 class분류
+    # get baseline value and type. If y is multi-
+    # target take only last baseline value.
     baseline = _baseline(y)[-1]
     baseline_type = _baseline_class(y)
 

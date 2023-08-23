@@ -285,27 +285,26 @@ def plot_reservoir_states(
         _description_, by default 'res_states'
     """
     # get end points for trials to plot trial separators
-    # 후반부 trials data 10개(혹은 그 이하)로 추출 
     if isinstance(reservoir_states, list):
         n_trials = np.min([len(x), 10])
         x = x[-n_trials:]
         reservoir_states = reservoir_states[-n_trials:]
 
         tf, end_points = 0, []
-        for _, trial in enumerate(x):    # _ : index, trial : (time steps in 1 trial x input features) matrix
+        for _, trial in enumerate(x):
             tf += len(trial)
             end_points.append(tf)
     else:
         end_points = None
 
-    # change list x to ndarray
+    # check X is array
     x, _ = _check_xy_type(x, None)
 
-    # change list to ndarray
+    # check reservoir_states is array
     if isinstance(reservoir_states, (list, tuple)):
         reservoir_states = concat(reservoir_states)
 
-    # check X have the right dimensions
+    # check X dimensions
     x = _check_x_dims(x)
 
     # set plotting theme
@@ -454,14 +453,10 @@ def plot_diagnostics(
         n_features=n_features, scaler=scaler, **kwargs
     )
 
-    # dec_func(trial# * time steps in 1 trial,3) 
     dec_func = transform_data(
         reservoir_states, feature_set='decfun', idx_features=idx_features,
         n_features=n_features, scaler=scaler, model=trained_model, **kwargs
     )
-
-    np.set_printoptions(threshold=np.inf, linewidth=np.inf)
-    # print(dec_func)
 
     y_trans = transform_data(
         y, feature_set='data', idx_features=idx_features,
@@ -494,7 +489,7 @@ def plot_diagnostics(
     data = [x_trans, dec_func, y_trans]
     for i, ax in enumerate(axs):
         sns.lineplot(
-            data=data[i][:200], palette=palette, dashes=False,
+            data=data[i][:160], palette=palette, dashes=False,
             legend=False, ax=ax)
 
     if y_pred.ndim:
@@ -503,7 +498,7 @@ def plot_diagnostics(
         n_colors = y_pred.shape[1]
     palette = sns.color_palette("tab10", n_colors+1)[1:]
     sns.lineplot(
-        data=y_pred[:200], palette=palette, dashes=False, legend=False,
+        data=y_pred[:160], palette=palette, dashes=False, legend=False,
         ax=axs[2], linewidth=1.5)
 
     # set legend

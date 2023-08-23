@@ -184,15 +184,16 @@ class EchoStateNetwork(Reservoir):
         if ic is not None:
             self._state[0, :] = ic
 
-        # simulate dynamics(RNN)
+        # simulate dynamics
         for t in timesteps:
             # if (t > 0) and (t % 100 == 0):
             #     print(f'\t ----- timestep = {t}')
-            # (t-1)에서의 input과 state를 통해 t의 state를 계산anj 
-            synap_input = np.dot(self._state[t-1, :], self.w) + np.dot(ext_input[t-1, :], w_in)    # w_in : input region만 1이고 나머진 0 => 해당 region만 input stimuli에 영향을 받음
+            synap_input = np.dot(
+                self._state[t-1, :], self.w) + np.dot(ext_input[t-1, :], w_in)
             self._state[t, :] = self.activation_function(synap_input, **kwargs)
 
-        # remove initial condition (to match the time index of _state and ext_input)
+        # remove initial condition (to match the time index of _state
+        # and ext_input)
         self._state = self._state[1:]
 
         # convert back to list or tuple
