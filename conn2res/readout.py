@@ -11,7 +11,7 @@ from sklearn import linear_model
 # from sklearn.multioutput import MultiOutputClassifier, MultiOutputRegressor
 # from sklearn.multiclass import OneVsRestClassifier
 
-from .utils import *
+from . import utils
 from .connectivity import get_readout_nodes
 from . import performance
 
@@ -104,7 +104,7 @@ class Readout:
 
         # check sample_weight is an array
         if isinstance(sample_weight, (list, tuple)):
-            sample_weight = concat(sample_weight)
+            sample_weight = utils.concat(sample_weight)
 
         # check X and y dimensions
         X = _check_x_dims(X)
@@ -150,7 +150,7 @@ class Readout:
 
         # check sample_weight is an array
         if isinstance(sample_weight, (list, tuple)):
-            sample_weight = concat(sample_weight)
+            sample_weight = utils.concat(sample_weight)
 
         # check X and y dimensions
         X = _check_x_dims(X)
@@ -230,7 +230,7 @@ class Readout:
         try:
             (x_train, x_test), (y_train, y_test) = X, y
         except ValueError as exc:
-            if not check(X, y):
+            if not utils.check(X, y):
                 xy_names = [type(X).__name__, type(y).__name__]
 
                 raise TypeError(
@@ -274,7 +274,7 @@ class Readout:
 
             #TODO: allow per_trial test
             # if isinstance(x_train, (list, tuple)):
-            #     sections = get_sections(x_train)
+            #     sections = utils.get_sections(x_train)
             #     convert_to_list = True
             # else:
             #     convert_to_list = False
@@ -341,7 +341,7 @@ def select_model(y):
 
     # if list or tuple convert to array
     if isinstance(y, (list, tuple)):
-        y = concat(y)
+        y = utils.concat(y)
 
     if y.dtype in [np.int32, np.int64]:
         if y.squeeze().ndim == 1:
@@ -491,10 +491,10 @@ def _check_xy_type(X, y):
         _description_
     """
     if X is not None and isinstance(X, (list, tuple)):
-        X = concat(X)
+        X = utils.concat(X)
 
     if y is not None and isinstance(y, (list, tuple)):
-        y = concat(y)
+        y = utils.concat(y)
 
     return X, y
 
@@ -576,7 +576,7 @@ def _get_sample_weight(y, split_set=None):
     return sample_weight_train, sample_weight_test
 
 
-def _sample_weight(y, split_set):
+def _sample_weight(y, split_set, seed=None):
     """
     _summary_
 
@@ -586,6 +586,9 @@ def _sample_weight(y, split_set):
         _description_
     split_set : _type_
         _description_
+    seed : int, array_like[ints], SeedSequence, BitGenerator, Generator, optional
+        seed to initialize the random number generator, by default None
+        for details, see numpy.random.default_rng()
 
     Returns
     -------
@@ -601,8 +604,8 @@ def _sample_weight(y, split_set):
 
     # convert y to array
     if isinstance(y, (list, tuple)):
-        sections = get_sections(y)
-        y = concat(y)
+        sections = utils.get_sections(y)
+        y = utils.concat(y)
         convert_to_list = True
     else:
         convert_to_list = False
@@ -620,7 +623,7 @@ def _sample_weight(y, split_set):
         sample_weight[y == baseline] = 0
 
         # split sample weight in trials
-        sample_weight = split(sample_weight, sections)
+        sample_weight = utils.split(sample_weight, sections)
 
         # estimate average length of label across trials
         lens = int(np.mean(
@@ -632,18 +635,22 @@ def _sample_weight(y, split_set):
             if all(sample_weight[i] == 0):
                 sample_weight[i][-lens:] = 1
 
-        sample_weight = concat(sample_weight)
+        sample_weight = utils.concat(sample_weight)
 
     elif baseline_type == 'class3':
         pass
 
     if split_set == 'train':
         print('-----------------------------------')
+        
+        # use random number generator for reproducibility
+        rng = np.random.default_rng(seed=seed)
+        
         idx = np.where(sample_weight == 0)[0]
-        sample_weight[idx] = np.random.rand((len(idx)))
+        sample_weight[idx] = rng.rand((len(idx)))
 
     if convert_to_list:
-        sample_weight = split(sample_weight, sections)
+        sample_weight = utils.split(sample_weight, sections)
 
     return sample_weight
 
@@ -664,7 +671,7 @@ def _baseline(y):
     """
 
     if isinstance(y, (list, tuple)):
-        y = concat(y)
+        y = utils.concat(y)
 
     y = _check_y_dims(y)
 

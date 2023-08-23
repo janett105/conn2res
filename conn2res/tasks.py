@@ -10,17 +10,17 @@ from reservoirpy import datasets
 
 NEUROGYM_TASKS = [
     'AntiReach',
-    'Bandit',  # *
+    # 'Bandit',  # *
     'ContextDecisionMaking',
-    'DawTwoStep',  # *
+    # 'DawTwoStep',  # *
     'DelayComparison',
     'DelayMatchCategory',
     'DelayMatchSample',
     'DelayMatchSampleDistractor1D',
     'DelayPairedAssociation',
-    'Detection',  # *
+    # 'Detection',  # *
     'DualDelayMatchSample',
-    'EconomicDecisionMaking',  # *
+    # 'EconomicDecisionMaking',  # *
     'GoNogo',
     'HierarchicalReasoning',
     'IntervalDiscrimination',
@@ -39,7 +39,7 @@ NEUROGYM_TASKS = [
     'ReadySetGo',
     'SingleContextDecisionMaking',
     'SpatialSuppressMotion',
-    'ToneDetection'  # *
+    # 'ToneDetection'  # *
 ]
 
 RESERVOIRPY_TASKS = [
@@ -129,7 +129,8 @@ class NeuroGymTask(Task):
 
         self._name = name
 
-    def fetch_data(self, n_trials=None, **kwargs):
+    def fetch_data(self, n_trials=None, input_gain=None, add_bias=False,
+                   **kwargs):
         """
         Fetch task dataset
 
@@ -137,6 +138,11 @@ class NeuroGymTask(Task):
         ----------
         n_trials : int, optional
             number of trials to be generated, by default None
+        input_gain : float, optional
+            gain on the input signal, i.e., scalar multiplier, by default None
+        add_bias : bool, optional
+            decides whether bias is added to the input signal or not,
+            by default False
 
         Returns
         -------
@@ -160,16 +166,23 @@ class NeuroGymTask(Task):
             env.new_trial()
             ob, gt = env.ob, env.gt
 
-            # store inputs
+            # reshape data if needed
             if ob.ndim == 1:
-                x.append(ob[:, np.newaxis])
-            else:
-                x.append(ob)
-
+                ob = ob[:, np.newaxis]
             if gt.ndim == 1:
-                y.append(gt[:, np.newaxis])
-            else:
-                y.append(gt)
+                gt = gt[:, np.newaxis]
+
+            # scale input data
+            if input_gain is not None:
+                ob *= input_gain
+
+            # add bias to input data if needed
+            if add_bias:
+                ob = np.hstack((np.ones((n_trials, 1)), ob))
+
+            # store input and output
+            x.append(ob)
+            y.append(gt)
 
         # set attributes
         if x[0].squeeze().ndim == 1:
@@ -220,7 +233,8 @@ class ReservoirPyTask(Task):
 
         self._name = name
 
-    def fetch_data(self, n_trials=None, horizon=1, win=30, **kwargs):
+    def fetch_data(self, n_trials=None, horizon=1, win=30,
+                   input_gain=None, add_bias=False, **kwargs):
         """
         _summary_
 
@@ -232,6 +246,11 @@ class ReservoirPyTask(Task):
             _description_, by default 1
         win : int, optional
             _description_, by default 30
+        input_gain : float, optional
+            gain on the input signal, i.e., scalar multiplier, by default None
+        add_bias : bool, optional
+            decides whether bias is added to the input signal or not,
+            by default False
 
         Returns
         -------
@@ -271,11 +290,19 @@ class ReservoirPyTask(Task):
         # update input data
         x = x[win : -abs_horizon_max - 1]
 
+        # reshape data if needed
         if x.ndim == 1:
             x = x[:, np.newaxis]
-
         if y.ndim == 1:
             y = y[:, np.newaxis]
+
+        # scale input data
+        if input_gain is not None:
+            x *= input_gain
+
+        # add bias to input data if needed
+        if add_bias:
+            x = np.hstack((np.ones((n_trials, 1)), x))
 
         # set attributes
         if x.squeeze().ndim == 1:
@@ -326,7 +353,9 @@ class Conn2ResTask(Task):
 
         self._name = name
 
-    def fetch_data(self, n_trials=None, horizon_max=-20, win=30, **kwargs):
+    def fetch_data(self, n_trials=None, horizon_max=-20, win=30,
+                   low=-1, high=1, input_gain=None, add_bias=False,
+                   seed=None):
         """
         _summary_
 
@@ -338,6 +367,20 @@ class Conn2ResTask(Task):
             _description_, by default None
         win : int, optional
             _description_, by default 30
+        low : float, optional
+            lower boundary of the output interval of numpy.uniform(),
+            by default -1
+        high : float, optional
+            upper boundary of the output interval of numpy.uniform(),
+            by default 1
+        input_gain : float, optional
+            gain on the input signal, i.e., scalar multiplier, by default None
+        add_bias : bool, optional
+            decides whether bias is added to the input signal or not,
+            by default False
+        seed : int, array_like[ints], SeedSequence, BitGenerator, Generator, optional
+            seed to initialize the random number generator, by default None
+            for details, see numpy.random.default_rng()
 
         Returns
         -------
@@ -367,8 +410,11 @@ class Conn2ResTask(Task):
         if win < abs_horizon_max:
             raise ValueError("Absolute maximum horizon should be within window")
 
+        # use random number generator for reproducibility
+        rng = np.random.default_rng(seed=seed)
+
         # generate input data
-        x = np.random.uniform(-1, 1, (self.n_trials + win + abs_horizon_max + 1))[
+        x = rng.uniform(low=low, high=high, size=(self.n_trials + win + abs_horizon_max + 1))[
             :, np.newaxis
         ]
 
@@ -378,11 +424,19 @@ class Conn2ResTask(Task):
         # update input data
         x = x[win : -abs_horizon_max - 1]
 
+        # reshape data if needed
         if x.ndim == 1:
             x = x[:, np.newaxis]
-
         if y.ndim == 1:
             y = y[:, np.newaxis]
+
+        # scale input data
+        if input_gain is not None:
+            x *= input_gain
+
+        # add bias to input data if needed
+        if add_bias:
+            x = np.hstack((np.ones((n_trials, 1)), x))
 
         # set attributes
         if x.squeeze().ndim == 1:
@@ -399,3 +453,26 @@ class Conn2ResTask(Task):
         # self._data = {'x': x, 'y': y}
 
         return x, y
+
+
+def get_task_list(repository):
+    """
+    Returns list of tasks in repository
+
+    Parameters
+    ----------
+    repository : str
+        _description_
+
+    Returns
+    -------
+    _type_
+        _description_
+    """
+    repository = repository.lower()
+    if repository == 'neurogym':
+        return NEUROGYM_TASKS
+    elif repository == 'reservoirpy':
+        return RESERVOIRPY_TASKS
+    elif repository == 'conn2res':
+        return CONN2RES_TASKS
