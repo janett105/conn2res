@@ -82,8 +82,8 @@ for task_name in TASKS:
     # the Desikan  Killiany atlas (Desikan, et al., 2006).
     # #####################################################################
 
-    # load connectivity data of one subject
-    conn = Conn(subj_id=0)
+    # load connectivity data of one subject(id:0~69)
+    conn = Conn(subj_id=0, filename='individual_human_250.npy')
 
     # scale conenctivity weights between [0,1] and normalize by spectral its
     # radius
@@ -100,7 +100,7 @@ for task_name in TASKS:
     
     # log : -inf값이 99만개가 생성됨.
     w_log=np.log(conn.w)
-    w_log=np.nan_to_num(w_log, neginf=0)
+    w_log=np.nan_to_num(w_log, neginf=-12.5)
     print(np.min(w_log), np.max(w_log))
 
     fig,ax1=plt.subplots()
@@ -146,7 +146,7 @@ for task_name in TASKS:
             # will use functional intrinsic networks (Yeo ,et al., 2011).
             # input nodes: a random set of brain regions in the visual system
             input_nodes = conn.get_nodes(
-                'random', nodes_from=conn.get_nodes('VIS'),
+                'random', nodes_from=conn.get_nodes('VIS', filename='rsn_human_250.npy'),
                 n_nodes=task.n_features
             )
 

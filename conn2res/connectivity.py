@@ -70,7 +70,7 @@ class Conn:
         else:
             # load connectivity data
             if filename is not None:
-                self.w = np.load(filename)
+                self.w = load_file(filename)
             else:
                 self.w = load_file('connectivity.npy')
 
@@ -363,7 +363,7 @@ class Conn:
 
             # load resting-state networks and filter to active nodes
             if filename is not None:
-                rsn_mapping = np.load(filename)
+                rsn_mapping = load_file(filename)
             else:
                 rsn_mapping = load_file('rsn_mapping.npy')
             np.set_printoptions(threshold=np.inf, linewidth=np.inf)
@@ -374,16 +374,19 @@ class Conn:
             # np.set_printoptions(threshold=np.inf, linewidth=np.inf)
             # print(rsn_mapping)
 
-            count={}
+            # count={}
+            # for i in range(len(rsn_mapping)):
+            #     name=rsn_mapping[i]
+            #     if name in count:
+            #         count[name].append(i)
+            #         # count[name]+=1
+            #     else:
+            #         count[name] = [i]
+            #         # count[name]=1
+            # print(f"rsn에 해당하는 w의 network : {count}")
+
             for i in range(len(rsn_mapping)):
-                name=rsn_mapping[i]
-                if name in count:
-                    # count[name].append(i)
-                    count[name]+=1
-                else:
-                    # count[name] = [i]
-                    count[name]=1
-            print(f"rsn에 해당하는 w의 network : {count}")
+                print(i)
 
             # get modules
             module_ids, modules = get_modules(rsn_mapping)
