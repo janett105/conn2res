@@ -1,11 +1,11 @@
 # other files
-examples/data
+# examples/data
 examples/tutorial_unittests.py
-examples/tests.py
+# examples/tests.py
 *figs/
 
 # data files
-# data/
+data/
 
 # hidden files
 .DS_store
