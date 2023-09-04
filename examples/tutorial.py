@@ -83,7 +83,7 @@ for task_name in TASKS:
     # #####################################################################
 
     # load connectivity data of one subject(id:0~69)
-    conn = Conn(subj_id=0, filename='individual_human_250.npy')
+    conn = Conn(subj_id=0, filename='consensus_human_250.npy')
 
     # scale conenctivity weights between [0,1] and normalize by spectral its
     # radius

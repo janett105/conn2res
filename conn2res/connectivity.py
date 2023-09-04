@@ -386,7 +386,7 @@ class Conn:
             # print(f"rsn에 해당하는 w의 network : {count}")
 
             for i in range(len(rsn_mapping)):
-                print(i)
+                print(rsn_mapping[i])
 
             # get modules
             module_ids, modules = get_modules(rsn_mapping)
@@ -433,7 +433,7 @@ class Conn:
             boolean indexing should be used for nodes
         """
 
-        if isinstance(idx_node, np.ndarray) and idx_node.dtype == np.bool:
+        if isinstance(idx_node, np.ndarray) and idx_node.dtype == bool:
             # update node attributes
             self.n_nodes = sum(idx_node)    # idx_node 중 True 개수 -> 1010개
             self.idx_node[self.idx_node] = idx_node
