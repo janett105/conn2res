@@ -12,7 +12,7 @@ from .utils import *
 
 
 PROJ_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-DATA_DIR = os.path.join(PROJ_DIR, 'examples', 'data')
+DATA_DIR = os.path.join(PROJ_DIR, 'data')
 
 
 class Conn:
@@ -368,7 +368,6 @@ class Conn:
                 rsn_mapping = load_file('rsn_mapping.npy')
             np.set_printoptions(threshold=np.inf, linewidth=np.inf)
 
-            print(len(self.idx_node))
             rsn_mapping = rsn_mapping[self.idx_node]
     
             # np.set_printoptions(threshold=np.inf, linewidth=np.inf)
@@ -385,8 +384,8 @@ class Conn:
             #         # count[name]=1
             # print(f"rsn에 해당하는 w의 network : {count}")
 
-            for i in range(len(rsn_mapping)):
-                print(rsn_mapping[i])
+            # for i in range(len(rsn_mapping)):
+            #     print(rsn_mapping[i])
 
             # get modules
             module_ids, modules = get_modules(rsn_mapping)
